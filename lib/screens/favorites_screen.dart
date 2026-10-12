@@ -13,124 +13,110 @@ class FavoritesScreen extends StatelessWidget {
     final box = Hive.box('favoritesBox');
 
     return Scaffold(
-      appBar: const GradientAppBar(
+      appBar: const PastelAppBar(
         title: 'Favorites',
-        icon: Icons.favorite_rounded,
         showBackButton: true, // uses Navigator.pop()
       ),
-      body: GradientBackground(
-        // Rebuilds automatically whenever the box changes.
-        child: ValueListenableBuilder(
-          valueListenable: box.listenable(),
-          builder: (context, Box b, _) {
-            // Read: all saved posts from the box.
-            final favorites = b.values.toList();
+      // Rebuilds automatically whenever the box changes.
+      body: ValueListenableBuilder(
+        valueListenable: box.listenable(),
+        builder: (context, Box b, _) {
+          // Read: all saved posts from the box.
+          final favorites = b.values.toList();
 
-            if (favorites.isEmpty) return const _EmptyFavorites();
+          if (favorites.isEmpty) return const _EmptyFavorites();
 
-            return ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
-              itemCount: favorites.length + 1,
-              itemBuilder: (context, index) {
-                if (index == 0) return _buildSummaryHeader(context, b.length);
+          return ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            itemCount: favorites.length + 1,
+            itemBuilder: (context, index) {
+              if (index == 0) return _buildHeader(b.length);
 
-                final post = Map<String, dynamic>.from(favorites[index - 1]);
-                final int id = post['id'];
+              final post = Map<String, dynamic>.from(favorites[index - 1]);
+              final int id = post['id'];
 
-                return Dismissible(
-                  key: ValueKey(id),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 26),
-                    margin: const EdgeInsets.only(bottom: 14),
-                    decoration: BoxDecoration(
-                      gradient: AppGradients.danger,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Delete',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Icon(Icons.delete_rounded, color: Colors.white),
-                      ],
-                    ),
+              return Dismissible(
+                key: ValueKey(id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 24),
+                  margin: const EdgeInsets.only(bottom: 18),
+                  decoration: chunkyDecoration(
+                    color: AppColors.danger,
+                    depth: 0,
                   ),
-                  onDismissed: (_) => _deletePost(context, b, id),
-                  child: _FavoriteCard(
-                    id: id,
-                    title: post['title'],
-                    note: post['note'] ?? '',
-                    onEdit: () => _editNote(context, b, post),
-                    onDelete: () => _deletePost(context, b, id),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Delete',
+                        style: AppTheme.font(
+                            weight: FontWeight.w600,
+                            color: AppColors.dangerText),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.delete_rounded,
+                          color: AppColors.dangerText),
+                    ],
                   ),
-                );
-              },
-            );
-          },
-        ),
+                ),
+                onDismissed: (_) => _deletePost(context, b, id),
+                child: _FavoriteCard(
+                  id: id,
+                  title: post['title'],
+                  note: post['note'] ?? '',
+                  onEdit: () => _editNote(context, b, post),
+                  onDelete: () => _deletePost(context, b, id),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
 
-  /// Gradient banner with the number of saved posts.
-  Widget _buildSummaryHeader(BuildContext context, int count) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        gradient: AppGradients.primary,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.forest.withValues(alpha: 0.25),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('My Collection',
-                    style: Theme.of(context).textTheme.headlineMedium),
-                const SizedBox(height: 6),
-                Text(
-                  'Add notes or swipe left to remove.',
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.85)),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 64,
-            height: 64,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.18),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-            ),
-            child: Text(
-              '$count',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
+  /// Green panel with the number of saved posts.
+  Widget _buildHeader(int count) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: PastelPanel(
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'My Collection',
+                    style: AppTheme.font(size: 26, weight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Add a note or swipe left to remove.',
+                    style: AppTheme.font(size: 15, weight: FontWeight.w400),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Container(
+              width: 62,
+              height: 62,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.cream,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.outline, width: 3),
+              ),
+              child: Text(
+                '$count',
+                style: AppTheme.font(size: 26, weight: FontWeight.w700),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -142,46 +128,29 @@ class FavoritesScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        titlePadding: EdgeInsets.zero,
-        title: Container(
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
-          decoration: const BoxDecoration(
-            gradient: AppGradients.primary,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-          ),
-          child: const Row(
-            children: [
-              Icon(Icons.sticky_note_2_rounded, color: AppColors.mint),
-              SizedBox(width: 10),
-              Text(
-                'Personal Note',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 19,
-                ),
-              ),
-            ],
-          ),
+        title: const Row(
+          children: [
+            Icon(Icons.sticky_note_2_rounded, color: AppColors.outline),
+            SizedBox(width: 10),
+            Text('Personal Note'),
+          ],
         ),
-        content: Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: TextField(
-            controller: controller,
-            maxLength: 100,
-            maxLines: 3,
-            autofocus: true,
-            decoration:
-                const InputDecoration(hintText: 'Write a short note...'),
-          ),
+        content: TextField(
+          controller: controller,
+          maxLength: 100,
+          maxLines: 3,
+          autofocus: true,
+          style: AppTheme.font(size: 16),
+          decoration: const InputDecoration(hintText: 'Write a short note...'),
         ),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text('Cancel'),
           ),
-          GradientButton(
+          ChunkyButton(
+            compact: true,
             label: 'Save',
             icon: Icons.check_rounded,
             onPressed: () {
@@ -222,37 +191,18 @@ class _EmptyFavorites extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 104,
-              height: 104,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: AppGradients.primary,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.forest.withValues(alpha: 0.25),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.spa_rounded,
-                  size: 50, color: Colors.white),
-            ),
+            const CircleIcon(icon: Icons.spa_rounded, size: 104),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'No favorites yet',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: AppColors.forest,
-              ),
+              style: AppTheme.font(size: 22, weight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Open a post and tap "Save to Favorites"\nto build your collection.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.muted, height: 1.5),
+              style: AppTheme.font(
+                  size: 15, weight: FontWeight.w400, color: AppColors.muted),
             ),
           ],
         ),
@@ -261,7 +211,7 @@ class _EmptyFavorites extends StatelessWidget {
   }
 }
 
-/// One saved post: gradient badge, title, note box, and edit/delete actions.
+/// One saved post: id badge, title, cream note box, edit/delete buttons.
 class _FavoriteCard extends StatelessWidget {
   final int id;
   final String title;
@@ -281,126 +231,85 @@ class _FavoriteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasNote = note.isNotEmpty;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.fromLTRB(16, 16, 10, 16),
-      decoration: cardDecoration(),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              gradient: AppGradients.accent,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Text(
-              '$id',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 10),
-                Container(
-                  width: double.infinity,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    gradient: hasNote ? AppGradients.soft : null,
-                    color: hasNote ? null : AppColors.cream,
-                    borderRadius: BorderRadius.circular(12),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
+        decoration: chunkyDecoration(color: AppColors.tile, depth: 5),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            IdBadge(id: id),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppTheme.font(size: 16, weight: FontWeight.w600),
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.sticky_note_2_outlined,
-                        size: 16,
-                        color: hasNote ? AppColors.leaf : AppColors.muted,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          hasNote ? note : 'No note yet',
-                          style: TextStyle(
-                            color: hasNote ? AppColors.forest : AppColors.muted,
-                            fontStyle:
-                                hasNote ? FontStyle.normal : FontStyle.italic,
+                  const SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                    decoration: BoxDecoration(
+                      color: hasNote ? AppColors.cream : AppColors.background,
+                      borderRadius: BorderRadius.circular(12),
+                      border:
+                          Border.all(color: AppColors.outline, width: 2),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.sticky_note_2_outlined,
+                            size: 17, color: AppColors.outline),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            hasNote ? note : 'No note yet',
+                            style: AppTheme.font(
+                              size: 14,
+                              weight: FontWeight.w400,
+                              color: hasNote
+                                  ? AppColors.outline
+                                  : AppColors.muted,
+                            ).copyWith(
+                              fontStyle: hasNote
+                                  ? FontStyle.normal
+                                  : FontStyle.italic,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              children: [
+                ChunkyButton(
+                  compact: true,
+                  icon: Icons.edit_rounded,
+                  tooltip: 'Edit note',
+                  onPressed: onEdit,
+                ),
+                const SizedBox(height: 6),
+                ChunkyButton(
+                  compact: true,
+                  icon: Icons.close_rounded,
+                  tooltip: 'Delete',
+                  color: AppColors.danger,
+                  depthColor: AppColors.dangerDepth,
+                  textColor: AppColors.dangerText,
+                  onPressed: onDelete,
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 4),
-          Column(
-            children: [
-              _CircleAction(
-                tooltip: 'Edit note',
-                icon: Icons.edit_rounded,
-                color: AppColors.leaf,
-                background: AppColors.mint.withValues(alpha: 0.45),
-                onTap: onEdit,
-              ),
-              const SizedBox(height: 8),
-              _CircleAction(
-                tooltip: 'Delete',
-                icon: Icons.delete_outline_rounded,
-                color: AppColors.danger,
-                background: AppColors.dangerSoft.withValues(alpha: 0.6),
-                onTap: onDelete,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Small round icon button with a tinted background.
-class _CircleAction extends StatelessWidget {
-  final String tooltip;
-  final IconData icon;
-  final Color color;
-  final Color background;
-  final VoidCallback onTap;
-
-  const _CircleAction({
-    required this.tooltip,
-    required this.icon,
-    required this.color,
-    required this.background,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: Material(
-        color: background,
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(9),
-            child: Icon(icon, size: 20, color: color),
-          ),
+          ],
         ),
       ),
     );

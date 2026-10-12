@@ -125,40 +125,22 @@ class _PostsScreenState extends State<PostsScreen> {
         return StatefulBuilder(
           builder: (dialogContext, setDialogState) {
             return AlertDialog(
-              titlePadding: EdgeInsets.zero,
-              title: Container(
-                padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
-                decoration: const BoxDecoration(
-                  gradient: AppGradients.primary,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.edit_note_rounded, color: AppColors.mint),
-                    SizedBox(width: 10),
-                    Text(
-                      'Create New Post',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 19,
-                      ),
-                    ),
-                  ],
-                ),
+              title: const Row(
+                children: [
+                  Icon(Icons.edit_note_rounded, color: AppColors.outline),
+                  SizedBox(width: 10),
+                  Text('New Post'),
+                ],
               ),
               content: Form(
                 key: formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SizedBox(height: 8),
                     TextFormField(
                       controller: titleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Title',
-                        prefixIcon: Icon(Icons.title_rounded),
-                      ),
+                      style: AppTheme.font(size: 16),
+                      decoration: const InputDecoration(labelText: 'Title'),
                       validator: (value) => value == null || value.trim().isEmpty
                           ? 'Title cannot be empty'
                           : null,
@@ -167,6 +149,7 @@ class _PostsScreenState extends State<PostsScreen> {
                     TextFormField(
                       controller: bodyController,
                       maxLines: 4,
+                      style: AppTheme.font(size: 16),
                       decoration: const InputDecoration(
                         labelText: 'Body',
                         alignLabelWithHint: true,
@@ -178,14 +161,15 @@ class _PostsScreenState extends State<PostsScreen> {
                   ],
                 ),
               ),
-              actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              actionsPadding: const EdgeInsets.fromLTRB(16, 4, 16, 18),
               actions: [
                 TextButton(
                   onPressed:
                       isSending ? null : () => Navigator.pop(dialogContext),
                   child: const Text('Cancel'),
                 ),
-                GradientButton(
+                ChunkyButton(
+                  compact: true,
                   label: isSending ? 'Sending...' : 'Submit',
                   icon: Icons.send_rounded,
                   onPressed: isSending
@@ -218,18 +202,10 @@ class _PostsScreenState extends State<PostsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: success ? AppGradients.accent : AppGradients.danger,
-          ),
-          child: Icon(
-            success ? Icons.check_rounded : Icons.close_rounded,
-            color: Colors.white,
-            size: 40,
-          ),
+        icon: CircleIcon(
+          size: 76,
+          icon: success ? Icons.check_rounded : Icons.close_rounded,
+          color: success ? AppColors.cream : AppColors.danger,
         ),
         title: Text(success ? 'Success' : 'Failed', textAlign: TextAlign.center),
         content: Column(
@@ -240,24 +216,26 @@ class _PostsScreenState extends State<PostsScreen> {
             _ResultInfoRow(
               label: 'STATUS CODE',
               value: result.statusCode?.toString() ?? 'No response',
-              valueColor: success ? AppColors.leaf : AppColors.danger,
+              valueColor: success ? AppColors.depth : AppColors.dangerDepth,
               large: true,
             ),
             const SizedBox(height: 10),
             _ResultInfoRow(
               label: 'ENDPOINT',
               value: 'POST  ${result.endpoint}',
-              valueColor: AppColors.forest,
+              valueColor: AppColors.outline,
             ),
           ],
         ),
         actionsAlignment: MainAxisAlignment.center,
         actionsPadding: const EdgeInsets.only(bottom: 20),
         actions: [
-          GradientButton(
+          ChunkyButton(
+            compact: true,
             label: 'OK',
-            icon: Icons.thumb_up_alt_rounded,
-            gradient: success ? AppGradients.primary : AppGradients.danger,
+            icon: Icons.check_rounded,
+            color: success ? AppColors.primary : AppColors.danger,
+            depthColor: success ? AppColors.depth : AppColors.dangerDepth,
             onPressed: () => Navigator.pop(ctx),
           ),
         ],
@@ -268,50 +246,38 @@ class _PostsScreenState extends State<PostsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: GradientAppBar(
+      appBar: PastelAppBar(
         title: 'Posts',
-        icon: Icons.eco_rounded,
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 14),
-            child: IconButton(
-              tooltip: 'Favorites',
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.white.withValues(alpha: 0.18),
-                foregroundColor: Colors.white,
-              ),
-              icon: const Icon(Icons.favorite_rounded),
-              onPressed: () => Navigator.pushNamed(context, '/favorites'),
-            ),
+          AppBarAction(
+            icon: Icons.favorite_rounded,
+            tooltip: 'Favorites',
+            onPressed: () => Navigator.pushNamed(context, '/favorites'),
           ),
         ],
       ),
-      body: GradientBackground(child: _buildBody()),
-      // Floating action button wrapped in a gradient.
+      body: _buildBody(),
+      // Floating action button in the chunky style.
       floatingActionButton: Container(
-        decoration: BoxDecoration(
-          gradient: AppGradients.accent,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.leaf.withValues(alpha: 0.35),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-          ],
+        decoration: chunkyDecoration(
+          color: AppColors.primary,
+          radius: 30,
+          depth: 6,
         ),
         child: FloatingActionButton.extended(
           tooltip: 'Add post',
           backgroundColor: Colors.transparent,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.outline,
           elevation: 0,
+          focusElevation: 0,
+          hoverElevation: 0,
           highlightElevation: 0,
           shape: const StadiumBorder(),
           onPressed: _showAddPostDialog,
-          icon: const Icon(Icons.add_rounded),
-          label: const Text(
+          icon: const Icon(Icons.add_rounded, size: 26),
+          label: Text(
             'New Post',
-            style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.3),
+            style: AppTheme.font(size: 18, weight: FontWeight.w600),
           ),
         ),
       ),
@@ -320,13 +286,13 @@ class _PostsScreenState extends State<PostsScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading posts...', style: TextStyle(color: AppColors.muted)),
+            const CircularProgressIndicator(strokeWidth: 4),
+            const SizedBox(height: 16),
+            Text('Loading posts...', style: AppTheme.font(color: AppColors.muted)),
           ],
         ),
       );
@@ -339,33 +305,23 @@ class _PostsScreenState extends State<PostsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 88,
-                height: 88,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: AppGradients.danger,
-                ),
-                child: const Icon(Icons.cloud_off_rounded,
-                    size: 42, color: Colors.white),
+              const CircleIcon(
+                icon: Icons.cloud_off_rounded,
+                color: AppColors.danger,
               ),
               const SizedBox(height: 22),
-              const Text(
+              Text(
                 'Something went wrong',
-                style: TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.forest,
-                ),
+                style: AppTheme.font(size: 21, weight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
               Text(
                 _errorMessage!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.danger, fontSize: 15),
+                style: AppTheme.font(size: 15, color: AppColors.dangerText),
               ),
               const SizedBox(height: 24),
-              GradientButton(
+              ChunkyButton(
                 label: 'Try Again',
                 icon: Icons.refresh_rounded,
                 onPressed: fetchPosts,
@@ -377,13 +333,13 @@ class _PostsScreenState extends State<PostsScreen> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 110),
       itemCount: _posts.length + 1,
       itemBuilder: (context, index) {
-        if (index == 0) return _buildHeroHeader();
+        if (index == 0) return _buildHeader();
 
         final post = _posts[index - 1];
-        return _PostCard(
+        return _PostRow(
           id: post['id'],
           title: post['title'],
           body: post['body'],
@@ -404,63 +360,56 @@ class _PostsScreenState extends State<PostsScreen> {
     );
   }
 
-  /// Gradient banner at the top of the list with post and favorite counts.
-  Widget _buildHeroHeader() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        gradient: AppGradients.primary,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.forest.withValues(alpha: 0.25),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Discover Posts',
-              style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 6),
-          Text(
-            'Tap any post to read it and save your favorites.',
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.85)),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 10,
-            runSpacing: 8,
-            children: [
-              StatPill(
-                  icon: Icons.article_rounded, text: '${_posts.length} Posts'),
-              // Updates live when favorites are added or removed.
-              ValueListenableBuilder(
-                valueListenable: Hive.box('favoritesBox').listenable(),
-                builder: (context, Box box, _) => StatPill(
-                  icon: Icons.favorite_rounded,
-                  text: '${box.length} Favorites',
+  /// Green panel at the top with the post and favorite counts.
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: PastelPanel(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Discover Posts',
+              style: AppTheme.font(size: 26, weight: FontWeight.w700),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Tap a post to read it and save your favorites.',
+              style: AppTheme.font(size: 15, weight: FontWeight.w400),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                StatTile(
+                    icon: Icons.article_rounded,
+                    text: '${_posts.length} posts'),
+                // Updates live when favorites are added or removed.
+                ValueListenableBuilder(
+                  valueListenable: Hive.box('favoritesBox').listenable(),
+                  builder: (context, Box box, _) => StatTile(
+                    icon: Icons.favorite_rounded,
+                    text: '${box.length} favorites',
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// One post in the list: white card with a gradient number badge.
-class _PostCard extends StatelessWidget {
+/// One post row: chunky light-green tile containing a ListTile.
+class _PostRow extends StatelessWidget {
   final int id;
   final String title;
   final String body;
   final VoidCallback onTap;
 
-  const _PostCard({
+  const _PostRow({
     required this.id,
     required this.title,
     required this.body,
@@ -469,60 +418,32 @@ class _PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      decoration: cardDecoration(),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          splashColor: AppColors.mint.withValues(alpha: 0.5),
-          onTap: onTap,
-          child: ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            leading: Container(
-              width: 48,
-              height: 48,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                gradient: AppGradients.accent,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Text(
-                '$id',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            title: Text(
-              title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            subtitle: Padding(
-              padding: const EdgeInsets.only(top: 5),
-              child: Text(
-                body,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            trailing: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: AppColors.mint.withValues(alpha: 0.5),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.arrow_forward_ios_rounded,
-                  size: 14, color: AppColors.leaf),
-            ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Pressable3D(
+        onTap: onTap,
+        color: AppColors.tile,
+        radius: 18,
+        depth: 5,
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+          leading: IdBadge(id: id),
+          title: Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTheme.font(size: 16, weight: FontWeight.w600),
           ),
+          subtitle: Text(
+            body,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTheme.font(
+                size: 14, weight: FontWeight.w400, color: AppColors.muted),
+          ),
+          trailing: const Icon(Icons.chevron_right_rounded,
+              size: 30, color: AppColors.outline),
         ),
       ),
     );
@@ -565,22 +486,33 @@ class _ResultInfoRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.cream,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.mint),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.outline, width: 2.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: Theme.of(context).textTheme.labelSmall),
+          Text(
+            label,
+            style: AppTheme.font(
+              size: 12,
+              weight: FontWeight.w700,
+              color: AppColors.muted,
+              letterSpacing: 1.2,
+            ),
+          ),
           const SizedBox(height: 4),
           SelectableText(
             value,
-            style: TextStyle(
-              color: valueColor,
-              fontWeight: FontWeight.w700,
-              fontSize: large ? 22 : 13,
-              fontFamily: large ? null : 'monospace',
-            ),
+            style: large
+                ? AppTheme.font(
+                    size: 24, weight: FontWeight.w700, color: valueColor)
+                : TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: valueColor,
+                  ),
           ),
         ],
       ),

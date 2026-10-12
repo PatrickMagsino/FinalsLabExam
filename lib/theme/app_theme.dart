@@ -1,184 +1,121 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-/// "Forest" palette used by every screen.
+/// Pastel green palette (chunky "game UI" style) used by every screen.
 class AppColors {
-  static const Color deepForest = Color(0xFF081C15); // darkest text
-  static const Color forest = Color(0xFF1B4332); // headings
-  static const Color leaf = Color(0xFF2D6A4F); // main accent
-  static const Color emerald = Color(0xFF40916C); // secondary accent
-  static const Color sage = Color(0xFF52B788); // highlights
-  static const Color mint = Color(0xFFB7E4C7); // soft chips, badges
-  static const Color cream = Color(0xFFF4FAF5); // page background
-  static const Color card = Colors.white;
-  static const Color muted = Color(0xFF5F7A6B); // secondary text
-  static const Color danger = Color(0xFFC0563F); // errors, delete
-  static const Color dangerSoft = Color(0xFFF6D5CC);
-}
-
-/// Gradients shared by every screen so the whole app feels like one design.
-class AppGradients {
-  /// AppBars, hero headers, primary buttons.
-  static const LinearGradient primary = LinearGradient(
-    colors: [Color(0xFF0B3D2E), Color(0xFF1B6B4A), Color(0xFF3FA36B)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  /// Badges, FAB, small highlights.
-  static const LinearGradient accent = LinearGradient(
-    colors: [Color(0xFF52B788), Color(0xFF2D9D78)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  /// "Already saved" state.
-  static const LinearGradient soft = LinearGradient(
-    colors: [Color(0xFFD8F3DC), Color(0xFFB7E4C7)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  /// Delete / error state.
-  static const LinearGradient danger = LinearGradient(
-    colors: [Color(0xFFE07A5F), Color(0xFFC0563F)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  /// Subtle page background.
-  static const LinearGradient background = LinearGradient(
-    colors: [Color(0xFFF4FAF5), Color(0xFFE3F1E6)],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-  );
+  static const Color background = Color(0xFFD6E29B); // page background
+  static const Color outline = Color(0xFF2E4A10); // thick dark outlines + text
+  static const Color depth = Color(0xFF56781F); // 3D layer under buttons
+  static const Color primary = Color(0xFFA3C63F); // buttons, panels
+  static const Color panel = Color(0xFFB2CF68); // softer panel green
+  static const Color tile = Color(0xFFD4E98B); // list rows, tiles
+  static const Color cream = Color(0xFFEFFBB8); // highlights, badges, pills
+  static const Color text = Color(0xFF2E4A10);
+  static const Color muted = Color(0xFF5E7434);
+  static const Color danger = Color(0xFFEDA085); // delete, errors
+  static const Color dangerDepth = Color(0xFF9C4F38);
+  static const Color dangerText = Color(0xFF6E2A17);
 }
 
 class AppTheme {
+  /// Rounded "Fredoka" font used everywhere.
+  static TextStyle font({
+    double size = 16,
+    FontWeight weight = FontWeight.w500,
+    Color color = AppColors.text,
+    double? height,
+    double? letterSpacing,
+  }) {
+    return GoogleFonts.fredoka(
+      fontSize: size,
+      fontWeight: weight,
+      color: color,
+      height: height,
+      letterSpacing: letterSpacing,
+    );
+  }
+
   static ThemeData get theme {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.leaf,
-      primary: AppColors.leaf,
-      secondary: AppColors.sage,
-      surface: AppColors.cream,
-      error: AppColors.danger,
+    final base = ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
+        primary: AppColors.depth,
+        surface: AppColors.background,
+        error: AppColors.dangerDepth,
+      ),
+      scaffoldBackgroundColor: AppColors.background,
     );
 
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: scheme,
-      fontFamily: 'Roboto',
-      scaffoldBackgroundColor: AppColors.cream,
+    return base.copyWith(
+      // Fonts: Fredoka for all text.
+      textTheme: GoogleFonts.fredokaTextTheme(base.textTheme).apply(
+        bodyColor: AppColors.text,
+        displayColor: AppColors.text,
+      ),
 
-      // AppBars are transparent; the gradient is drawn by GradientAppBar.
       appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.background,
         surfaceTintColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.text,
         elevation: 0,
-        centerTitle: false,
-        titleTextStyle: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 21,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.4,
-          color: Colors.white,
-        ),
-      ),
-
-      textTheme: const TextTheme(
-        headlineMedium: TextStyle(
-          fontSize: 26,
-          fontWeight: FontWeight.w800,
-          height: 1.2,
-          color: Colors.white,
-        ),
-        headlineSmall: TextStyle(
-          fontSize: 23,
-          fontWeight: FontWeight.w800,
-          height: 1.3,
-          color: Colors.white,
-        ),
-        titleMedium: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          color: AppColors.deepForest,
-          height: 1.3,
-        ),
-        bodyLarge: TextStyle(
-          fontSize: 16,
-          height: 1.75,
-          color: AppColors.deepForest,
-        ),
-        bodyMedium: TextStyle(
-          fontSize: 14,
-          height: 1.4,
-          color: AppColors.muted,
-        ),
-        labelSmall: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 1.4,
-          color: AppColors.emerald,
-        ),
-      ),
-
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          backgroundColor: AppColors.leaf,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-          shape: const StadiumBorder(),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-        ),
-      ),
-
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: AppColors.leaf),
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        toolbarHeight: 84,
       ),
 
       dialogTheme: DialogThemeData(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
-        titleTextStyle: const TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 20,
-          fontWeight: FontWeight.w800,
-          color: AppColors.forest,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(26),
+          side: const BorderSide(color: AppColors.outline, width: 3),
         ),
+        titleTextStyle: font(size: 22, weight: FontWeight.w600),
+        contentTextStyle: font(size: 15, weight: FontWeight.w400),
       ),
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.cream,
-        labelStyle: const TextStyle(color: AppColors.muted),
+        labelStyle: font(size: 15, color: AppColors.muted),
+        hintStyle: font(size: 15, weight: FontWeight.w400, color: AppColors.muted),
+        floatingLabelStyle: font(size: 15, weight: FontWeight.w600),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.mint, width: 1.5),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: AppColors.outline, width: 2.5),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.leaf, width: 2),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: AppColors.depth, width: 3),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: AppColors.dangerDepth, width: 2.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.danger, width: 2),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: AppColors.dangerDepth, width: 3),
+        ),
+        errorStyle: font(size: 13, color: AppColors.dangerDepth),
+      ),
+
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.outline,
+          textStyle: font(size: 16, weight: FontWeight.w600),
         ),
       ),
 
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.forest,
-        contentTextStyle: const TextStyle(color: Colors.white, fontSize: 14),
+        backgroundColor: AppColors.outline,
+        contentTextStyle: font(size: 15, color: AppColors.cream),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
 
       progressIndicatorTheme:
-          const ProgressIndicatorThemeData(color: AppColors.leaf),
+          const ProgressIndicatorThemeData(color: AppColors.depth),
     );
   }
 }
